@@ -1,6 +1,6 @@
 <template >
   <div >
-    <header>
+    <header class="">
       <div class="navbar bg-sky-500">
         <div class="flex-1">
           <a class="btn btn-ghost text-xl text-white">PM Smart E-Learning</a>
@@ -88,7 +88,7 @@ function logout() {
 }
 </script>
 
-<style>
+<style scoped>
 nav {
   margin: 10px auto;
   padding: 10px 0;

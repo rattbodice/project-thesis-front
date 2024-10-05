@@ -1,20 +1,23 @@
 <template>
-  <div v-if="isVisible" class="fixed z-10 inset-0 overflow-y-auto bg-black bg-opacity-50">
+  <div
+    v-if="isVisible"
+    class="fixed z-10 inset-0 overflow-y-auto bg-black bg-opacity-50"
+  >
     <div class="flex items-center justify-center min-h-screen px-4">
       <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-        <h3 class="text-xl font-semibold mb-4">เพิ่มคอร์สใหม่</h3>
+        <h3 class="text-xl font-semibold mb-4">เพิ่มหัวข้อใหม่</h3>
         <form @submit.prevent="submitForm">
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">ชื่อคอร์ส</label>
+            <label class="block text-gray-700 mb-2">หัวข้อ</label>
             <input
               type="text"
-              v-model="courseName"
+              v-model="courseTopicName"
               class="w-full px-3 py-2 border rounded-lg"
               required
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">รายละเอียดคอร์ส</label>
+            <label class="block text-gray-700 mb-2">รายละเอียดหัวข้อ</label>
             <textarea
               v-model="courseDescription"
               class="w-full px-3 py-2 border rounded-lg"
@@ -22,17 +25,15 @@
             ></textarea>
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">อัปโหลดรูปภาพ</label>
+            <label class="block text-gray-700 mb-2">ระดับ</label>
             <input
-              type="file"
-              @change="onImageSelected"
+              type="number"
+              v-model="courseLevelTopic"
               class="w-full px-3 py-2 border rounded-lg"
-              accept="image/*"
+              required
             />
           </div>
-          <div v-if="imagePreview" class="mb-4">
-            <img :src="imagePreview" alt="Image Preview" class="w-full h-auto rounded-lg" />
-          </div>
+
           <div class="flex justify-end">
             <button
               type="button"
@@ -58,68 +59,61 @@
 import { ref, computed } from "vue";
 import { defineProps, defineEmits } from "vue";
 import { useRuntimeConfig } from "#app";
-import { createCourse } from "@/services/courseService";
+import { createTopicCourse } from "@/services/courseTopicService";
 
 const props = defineProps({
   show: {
     type: Boolean,
     default: false,
   },
-  fetchCourses: { // เพิ่ม props นี้
-    type: Function,
+  courseId: {
+    type: [String, Number],
     required: true,
+    default: false
+  },
+  dataTopic: {
+    type: Object,
+    required: true,
+    default: false
   }
 });
 
 const emit = defineEmits(["close"]);
-const config = useRuntimeConfig();
-
 const isVisible = computed(() => props.show);
 
-const closeModal = () => {
-  if (imagePreview.value) {
-    URL.revokeObjectURL(imagePreview.value);
-  }
-  emit("close");
-};
+const dataTopic = props.dataTopic;
 
-const courseName = ref("");
+
+
+const courseTopicName = ref("");
 const courseDescription = ref("");
-const imageFile = ref(null);
-const imagePreview = ref(null);
-const level = ref(1)
-
-const onImageSelected = (event) => {
-  const file = event.target.files[0];
-  if (file && file.type.startsWith("image/")) {
-  imagePreview.value = URL.createObjectURL(file);
-  imageFile.value = file;
-} else {
-  alert("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น");
-}
-};
+const courseLevelTopic = ref(1);
 
 const submitForm = async () => {
-  if (!courseName.value || !courseDescription.value) {
+  if (!courseTopicName.value || !courseDescription.value) {
     alert("กรุณากรอกข้อมูลให้ครบถ้วน");
     return;
   }
-  const userId = localStorage.getItem('userId');
-  console.log(`get id user : ${userId}`)
-  const result = await createCourse(
-    courseName.value,
-    courseDescription.value,
-    userId,
-    imageFile.value,
-    level.value,
-    config.public.baseURL
-  );
+
+  const payload = {
+    title: courseTopicName.value,
+    description: courseDescription.value,
+    course_id: props.courseId,
+    level: courseLevelTopic.value,
+    no: (dataTopic.length)+1
+  };
+
+  const result = await createTopicCourse(payload);
 
   if (result.success) {
-    props.fetchCourses();
+    emit("submitted"); 
     closeModal();
   } else {
     console.error("เกิดข้อผิดพลาดในการสร้างคอร์ส:", result.error);
   }
+};
+
+const closeModal = () => {
+  emit("close");
 };
 </script>

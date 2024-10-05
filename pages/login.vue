@@ -42,6 +42,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRuntimeConfig } from '#app';
+import jwt_decode from 'jwt-decode'; // Import jwt-decode
 
 definePageMeta({
   layout: false,
@@ -54,11 +55,9 @@ const router = useRouter();
 const config = useRuntimeConfig();
 
 onMounted(() => {
-  // ตรวจสอบว่าอยู่ใน client-side (browser)
   if (process.client) {
     const token = localStorage.getItem('token');
     if (token) {
-      // ถ้ามี token ให้นำผู้ใช้ไปที่หน้า home หรือ dashboard
       router.push('/');
     }
   }
@@ -66,22 +65,29 @@ onMounted(() => {
 
 async function login() {
   try {
-    const response = await $fetch(`${config.public.baseURL}/users/login`, {
+    const response = await $fetch(`${config.public.baseURL}/api/users/login`, {
       method: 'POST',
       body: {
         email: email.value,
         password: password.value,
-      }
+      },
     });
 
-    // เก็บ JWT token ใน localStorage
+    // Save JWT token in localStorage
     localStorage.setItem('token', response.token);
 
-    // นำผู้ใช้ไปยังหน้า dashboard หรือ home
+    // Decode JWT token to get userId
+    const decodedToken = jwt_decode(response.token);
+    const userId = decodedToken.userId;
+    localStorage.setItem('userId', userId);
+
+    console.log(userId);
+    // Navigate user to dashboard or home
     router.push('/');
   } catch (err) {
     error.value = 'Login failed. Please try again.';
   }
 }
 </script>
+
 

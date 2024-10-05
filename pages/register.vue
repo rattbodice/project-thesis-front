@@ -61,7 +61,7 @@ const error = ref('')
 
 async function register() {
   try {
-    const response = await useFetch(`${config.public.baseURL}/users/register`, {
+    const response = await useFetch(`${config.public.baseURL}/api/users/register`, {
       method: 'POST',
       body: {
         username: username.value,
