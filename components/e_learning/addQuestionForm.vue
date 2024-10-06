@@ -192,7 +192,6 @@
         seconds: question.time_in_video % 60,
       }));
     } else {
-      alert(`Failed to fetch questions: ${response.error}`); // ข้อความแสดงข้อผิดพลาด
       console.error('Error fetching questions:', response.error);
     }
   });
