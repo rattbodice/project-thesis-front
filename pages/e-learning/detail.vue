@@ -27,7 +27,7 @@
       </button>
 
       <!-- Menu Items -->
-      <h2 v-if="dataCourse">{{ dataCourse.title }}</h2>
+      <h2 class="text-center" v-if="dataCourse">{{ dataCourse.title }}</h2>
       <ul class="mt-6">
         <div v-for="data in dataTopicCourse" class="collapse bg-base-200">
           <input type="checkbox" />
@@ -83,6 +83,7 @@
     <div class="flex-grow ">
       <MainContent v-if="showMainContent" :subtopic="dataShowMainContent" />
       <MainAddSubtopic :topicId="TopicIdToAddSub" v-if="showMainAddSubTopic" @submitted="fetchTopicCourse" />
+      
     </div>
   </div>
 </template>
