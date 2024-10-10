@@ -60,6 +60,8 @@ import { ref, computed } from "vue";
 import { defineProps, defineEmits } from "vue";
 import { useRuntimeConfig } from "#app";
 import { createTopicCourse } from "@/services/courseTopicService";
+import { useToast } from 'vue-toastification';
+const toast = useToast();
 
 const props = defineProps({
   show: {
@@ -106,10 +108,12 @@ const submitForm = async () => {
   const result = await createTopicCourse(payload);
 
   if (result.success) {
+    toast.success('เพิ่มหัวข้อหลักสำเร็จ!');
     emit("submitted"); 
     closeModal();
   } else {
     console.error("เกิดข้อผิดพลาดในการสร้างคอร์ส:", result.error);
+    toast.error('ไม่สามารถเพิ่มหัวข้อหลักได้ !');
   }
 };
 

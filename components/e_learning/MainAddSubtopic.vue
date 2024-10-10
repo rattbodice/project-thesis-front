@@ -26,6 +26,16 @@
         />
       </div>
 
+      <!-- Progress Bar -->
+      <div v-if="uploadProgress > 0" class="w-full bg-gray-200 rounded-full">
+        <div 
+          class="bg-indigo-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+          :style="{ width: uploadProgress + '%' }"
+        >
+          {{ uploadProgress }}%
+        </div>
+      </div>
+
       <!-- คำบรรยายหัวข้อย่อย -->
       <div class="space-y-2">
         <label for="description" class="block text-sm font-medium text-gray-700">คำบรรยายหัวข้อย่อย</label>
@@ -52,8 +62,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { createSubTopic } from '@/services/courseSubTopicService'
+import { ref } from 'vue';
+import { createSubTopic } from '@/services/courseSubTopicService';
 
 const props = defineProps({
   topicId: {
@@ -61,10 +71,11 @@ const props = defineProps({
     required: true,
   },
 });
-
+const emit = defineEmits(['submitted','subtopicLatest']); // กำหนด emit
 const title = ref('');
 const videoFile = ref(null);
 const description = ref('');
+const uploadProgress = ref(0); // ติดตาม progress
 
 // ฟังก์ชันจัดการการอัปโหลดไฟล์
 const handleFileUpload = (event) => {
@@ -96,21 +107,25 @@ const handleSubmit = async () => {
   formData.append('video', videoFile.value);
   formData.append('topic_course_id', props.topicId); // ส่ง topicId ไปในข้อมูล
 
-  // เรียกใช้ฟังก์ชัน createSubTopic เพื่อลงข้อมูล
-  const result = await createSubTopic(formData);
+  // เรียกใช้ฟังก์ชัน createSubTopic เพื่อลงข้อมูล พร้อมการอัปเดต progress
+  const result = await createSubTopic(formData, (progressEvent) => {
+    uploadProgress.value = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+  });
 
   if (result.success) {
-    alert('ส่งแบบฟอร์มเรียบร้อยแล้ว!');
+    alert("ส่งแบบฟอร์มเรียบร้อยแล้ว");
+    
     title.value = '';
     description.value = '';
     videoFile.value = null;
-    emit("submitted"); 
+    uploadProgress.value = 0;
+    emit("submitted");
+    emit("subtopicLatest",props.topicId,result.data.subTopicCourse.id); 
   } else {
     alert('เกิดข้อผิดพลาด: ' + result.error);
   }
 };
 </script>
-
 
 <style scoped>
 /* คุณสามารถเพิ่มสไตล์ที่กำหนดเองได้ที่นี่ */

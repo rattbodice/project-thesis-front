@@ -26,6 +26,35 @@ export const createTopicCourse = async (
   }
 };
 
+export const editTopicCourse = async (id, payload) => {
+  try {
+    const config = useRuntimeConfig();
+    
+    // Log เพื่อเช็คว่า id และ payload ถูกต้อง
+    console.log("Editing topic with ID:", id, "and payload:", payload);
+    
+    // ทำการ request แบบ PUT เพื่อแก้ไขหัวข้อ
+    const { data, error } = await useFetch(
+      `${config.public.baseURL}/api/course/edit-topic-course/${id}`,
+      {
+        method: "PUT",
+        body: payload,
+      }
+    );
+
+    if (error.value) {
+      console.error("Error editing topic course:", error.value);
+      return { success: false, error: error.value };
+    }
+
+    return { success: true, data: data.value };
+  } catch (err) {
+    console.error("An error occurred:", err);
+    return { success: false, error: err };
+  }
+};
+
+
 export const getAllTopicInCourse = async (courseId) => {
   try {
     const config = useRuntimeConfig();

@@ -23,14 +23,31 @@
       </video>
     </div>
 
-    <addQuestionForm class="mt-6" :subTopicId="subtopic.id" :videoLength="videoLength" />
+    <EDComponent :subtopic="subtopic" @toEdit="handleEdit" @deleted="handleDeleteSubtopic"/>
+
+    <addQuestionForm class="mt-6" @fetchQuestions="fetchQuestions" :subTopicId="subtopic.id" :videoLength="videoLength" />
+    
+    <!-- ป๊อปอัพแสดงคำถาม -->
+    <questionPopup 
+      v-if="showQuestionPopup" 
+      :show="showQuestionPopup" 
+      :questionId="questions[currentQuestionIndex]?.id" 
+      :questionText="questions[currentQuestionIndex]?.question_text" 
+      :options="questions[currentQuestionIndex]?.options" 
+      :subTopicId="subtopic.id" 
+      @close="showQuestionPopup = false" 
+      @answerSubmitted="handleAnswerSubmission"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import addQuestionForm from './addQuestionForm.vue';
+import questionPopup from './QuestionPopup.vue'; // Import question popup component
+import EDComponent from "./EdComponent.vue";
 import { updateProgressVideoUser, getProgressVideoUser } from '@/services/progressService'; 
+import { getQuestionsBySubTopic } from '@/services/questionService'; 
 
 const config = useRuntimeConfig();
 
@@ -41,21 +58,85 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['setDefault','toEdit']); // กำหนด emit
+
 const videoLength = ref(0);
 const videoElement = ref(null); 
 const userId = localStorage.getItem('userId'); 
 const lastWatchedTime = ref(0); 
 const hasWatched = ref(false); 
 
-const isSeeking = ref(false)
-const isPlaying = ref(false)
+const showQuestionPopup = ref(false); // สถานะการแสดงป๊อปอัพ
+const currentQuestionIndex = ref(null);  // เก็บคำถามที่แสดงในปัจจุบัน
+const questions = ref([]);  // เก็บคำถามทั้งหมดของ subtopic
 
 const onVideoLoaded = (event) => {
   videoLength.value = event.target.duration; 
-  console.log('Video loaded. Duration:', videoLength.value);
   videoElement.value.currentTime = lastWatchedTime.value; 
-  console.log('Setting currentTime to last watched time:', lastWatchedTime.value);
 };
+
+const fetchQuestions = async () => {
+  // ตรวจสอบว่าผู้ใช้เรียนจบหรือยัง
+  if (hasWatched.value) {
+    console.log('User has already completed the video. No questions will be fetched.');
+    return; // ไม่ต้องดึงคำถามถ้าผู้ใช้เรียนจบแล้ว
+  }
+
+  const response = await getQuestionsBySubTopic(props.subtopic.id, userId);
+  if (response.success) {
+    questions.value = response.data;
+    console.log('Questions fetched:', questions.value); // แสดงคำถามที่ดึงมา
+  }
+};
+
+
+const checkForNewQuestions = async (currentTime) => {
+  console.log('Current Time:', currentTime);
+  console.log('Questions:', questions.value);
+  
+  for (let i = 0; i < questions.value.length; i++) {
+    console.log('Checking question:', questions.value[i]);
+    
+    if (questions.value[i].time_in_video <= currentTime && (currentQuestionIndex.value === null || currentQuestionIndex.value < i)) {
+      currentQuestionIndex.value = i; // เปลี่ยนให้เป็น i แทน 0
+      showQuestionPopup.value = true; // แสดงป๊อปอัพ
+      videoElement.value.pause(); // หยุดเล่นวิดีโอ
+      break; // แสดงคำถามที่ตรงตามเงื่อนไข
+    }
+  }
+
+  if (!showQuestionPopup.value) {
+    console.log('No new questions available at this time.');
+  }
+};
+
+
+
+const handleEdit = async ()=>{
+  emit('toEdit')
+}
+
+
+
+const handleAnswerSubmission = async (answer) => {
+  console.log('Answer submitted:', answer);
+  // ส่งคำตอบไปที่ backend
+
+  // หลังจากตอบคำถามแล้ว ให้เรียก fetchQuestions ใหม่เพื่อตรวจสอบคำถามที่เหลือ
+  await fetchQuestions();  
+
+  // ตรวจสอบคำถามใหม่หลังจากการตอบ
+  if (questions.value.length > 0) {
+    // รีเซ็ต currentQuestionIndex และตรวจสอบคำถามใหม่
+    currentQuestionIndex.value = null; // รีเซ็ตดัชนี
+    checkForNewQuestions(videoElement.value.currentTime); // ตรวจสอบคำถามใหม่อีกครั้ง
+  } else {
+    console.log('No new questions available.');
+  }
+
+  showQuestionPopup.value = false; // ปิดป๊อปอัพ
+};
+
 
 const fetchVideoProgress = async () => {
   try {
@@ -66,9 +147,6 @@ const fetchVideoProgress = async () => {
       if (progressData.data.is_finished) {
         hasWatched.value = true;
       }
-      console.log('Progress fetched:', progressData.data);
-    } else {
-      console.log('Failed to fetch progress data');
     }
   } catch (error) {
     console.error('Error fetching video progress:', error);
@@ -79,18 +157,19 @@ const onVideoTimeUpdate = () => {
   const video = videoElement.value;
   const currentTime = video.currentTime;
 
-  console.log('Video time update. Current time:', currentTime);
+  // ถ้าผู้ใช้เรียนจบแล้ว ไม่ต้องตรวจสอบคำถาม
+  if (hasWatched.value) {
+    return;
+  }
 
-  // อัปเดตความก้าวหน้าเมื่อเวลาปัจจุบันมีค่ามากกว่า lastWatchedTime
+  checkForNewQuestions(currentTime);
+
   if (currentTime > lastWatchedTime.value) {
     if (currentTime - lastWatchedTime.value <= 1) {
-      // Allow small increments (up to 1 second) for smooth playback
       lastWatchedTime.value = currentTime;
       updateVideoProgress();
     } else {
-      // If skipped ahead by more than 1 second, revert
       video.currentTime = lastWatchedTime.value;
-      console.log('Attempted to skip ahead. Reverting to:', lastWatchedTime.value);
     }
   }
 };
@@ -99,83 +178,67 @@ const updateVideoProgress = async () => {
   const video = videoElement.value;
   const currentTime = video.currentTime;
 
-  console.log('Current Time:', currentTime, 'Last Watched Time:', lastWatchedTime.value);
-  
-  // อัปเดตความก้าวหน้าหากเวลาปัจจุบันมีค่ามากกว่า lastWatchedTime
-  
-    lastWatchedTime.value = currentTime; 
-    const isFinished = currentTime >= videoLength.value;
+  lastWatchedTime.value = currentTime; 
+  const isFinished = currentTime >= videoLength.value;
 
-    console.log('Updating progress to:', lastWatchedTime.value, 'Is Finished:', isFinished);
+  try {
+    const response = await updateProgressVideoUser({
+      user_id: userId,
+      subtopic_id: props.subtopic.id,
+      last_watched_time: lastWatchedTime.value,
+      is_finished: isFinished,
+    });
 
-    try {
-      const response = await updateProgressVideoUser({
-        user_id: userId,
-        subtopic_id: props.subtopic.id,
-        last_watched_time: lastWatchedTime.value,
-        is_finished: isFinished,
-      });
-
-      if (response.success) {
-        console.log('Progress updated, last watched time:', lastWatchedTime.value, 'isFinished:', isFinished);
-
-        if (isFinished) {
-          hasWatched.value = true;
-        }
-      } else {
-        console.log('Failed to update progress:', response.message);
+    if (response.success) {
+      if (isFinished) {
+        hasWatched.value = true;
       }
-    } catch (error) {
-      console.error('Error updating video progress:', error);
     }
-  
+  } catch (error) {
+    console.error('Error updating video progress:', error);
+  }
 };
 
 const onVideoPauseOrEnd = () => {
-  console.log('Video paused or ended at:', videoElement.value.currentTime);
   // updateVideoProgress();
-  isPlaying.value = false;
 };
 
 const onVideoSeeking = () => {
   const video = videoElement.value;
   const seekTime = video.currentTime;
-  console.log('Video seeking started at:', seekTime);
 
   if (seekTime > lastWatchedTime.value) {
-    // Prevent seeking forward beyond the last watched time
     video.currentTime = lastWatchedTime.value;
-    console.log('Attempted to seek ahead. Reverting to:', lastWatchedTime.value);
   }
 };
 
 const onVideoSeeked = () => {
   const video = videoElement.value;
-  console.log('Video seeking ended. Current time:', video.currentTime);
-  
   if (video.currentTime > lastWatchedTime.value) {
     video.currentTime = lastWatchedTime.value;
-    console.log('Enforcing last watched time:', lastWatchedTime.value);
   }
 };
 
 const onVideoPlay = () => {
   const video = videoElement.value;
-  console.log('Video played. Current time:', video.currentTime);
-
   if (video.currentTime > lastWatchedTime.value) {
     video.currentTime = lastWatchedTime.value;
-    console.log('Enforcing last watched time on play:', lastWatchedTime.value);
   }
-
-  isPlaying.value = true;
 };
+
+const handleDeleteSubtopic= () => {
+  emit("fetchTopic")
+  emit("setDefault")
+}
+
+const handleEditSubTopic = () => {
+  
+}
 
 onMounted(() => {
   if (userId) {
     fetchVideoProgress(); 
-  } else {
-    console.log('User is not logged in. Skipping progress fetch.');
+    fetchQuestions();
   }
 });
 </script>

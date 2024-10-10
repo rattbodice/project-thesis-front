@@ -1,6 +1,6 @@
 export default defineNuxtConfig({
   build: {
-    transpile: ['@iconify/vue'],
+    transpile: ['@iconify/vue','vue-toastification'],
   },
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
