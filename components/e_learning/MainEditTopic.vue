@@ -60,6 +60,7 @@
   import { defineProps, defineEmits } from "vue";
   import { editTopicCourse } from "@/services/courseTopicService"; // ฟังก์ชันสำหรับการอัปเดตหัวข้อ
   import { useToast } from 'vue-toastification';
+  const toast = useToast();
   
   // รับ props จาก component parent
   const props = defineProps({
@@ -80,7 +81,6 @@
   // ใช้ emit เพื่อส่ง event กลับไปยัง parent
   const emit = defineEmits(["close", "submitted"]);
   const isVisible = computed(() => props.show);
-  const toast = useToast();
 
   // กำหนดค่าฟิลด์แก้ไขหัวข้อ
   const courseTopicName = ref("");

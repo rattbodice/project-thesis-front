@@ -55,7 +55,7 @@ export const editTopicCourse = async (id, payload) => {
 };
 
 
-export const getAllTopicInCourse = async (courseId) => {
+export const getAllTopicInCourse = async (courseId,userId) => {
   try {
     const config = useRuntimeConfig();
     
@@ -64,7 +64,7 @@ export const getAllTopicInCourse = async (courseId) => {
     
     // Perform fetch request
     const response = await fetch(
-      `${config.public.baseURL}/api/course/getAllTopicCourse?courseId=${courseId}`,
+      `${config.public.baseURL}/api/course/getAllTopicCourse?courseId=${courseId}&userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -89,5 +89,60 @@ export const getAllTopicInCourse = async (courseId) => {
     return [];
   }
 };
+
+export const orderUpdateTopic = async (order) => {
+  try {
+    const config = useRuntimeConfig();
+
+    // เรียก fetch เพื่ออัปเดตลำดับและระดับ
+    const response = await fetch(`${config.public.baseURL}/api/course/order-topic`, {
+      method: 'PUT', // ใช้เมธอด PUT
+      headers: {
+        'Content-Type': 'application/json', // กำหนดประเภทเนื้อหาเป็น JSON
+      },
+      body: JSON.stringify(order), // แปลง order เป็น JSON string
+    });
+
+    // ตรวจสอบผลลัพธ์
+    if (response.ok) {
+      const data = await response.json(); // แปลงข้อมูลเป็น JSON
+      return { success: true, message: data.message }; // ส่งข้อมูลกลับเมื่อสำเร็จ
+    } else {
+      const errorData = await response.json(); // แปลงข้อผิดพลาดเป็น JSON
+      return { success: false, error: errorData }; // ส่งข้อผิดพลาดกลับเมื่อไม่สำเร็จ
+    }
+  } catch (error) {
+    return { success: false, error: error.message }; // ส่งข้อผิดพลาดกลับ
+  }
+};
+
+
+export const deleteTopicCourse = async (topicId) => {
+  try {
+    const config = useRuntimeConfig();
+
+    // Log เพื่อเช็คว่า topicId ถูกต้อง
+    console.log("Deleting topic with ID:", topicId);
+
+    // ทำการ request แบบ DELETE เพื่อทำการลบหัวข้อ
+    const { data, error } = await useFetch(
+      `${config.public.baseURL}/api/course/delete-topic-course/${topicId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (error.value) {
+      console.error("Error deleting topic course:", error.value);
+      return { success: false, error: error.value };
+    }
+
+    return { success: true, data: data.value };
+  } catch (err) {
+    console.error("An error occurred:", err);
+    return { success: false, error: err };
+  }
+};
+
 
 

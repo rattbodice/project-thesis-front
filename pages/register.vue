@@ -4,6 +4,20 @@
       <h1 class="text-2xl font-bold mb-4 text-center">สมัครสมาชิก</h1>
       <form @submit.prevent="register" class="space-y-4">
         <input
+          v-model="firstName"
+          type="text"
+          placeholder="First Name"
+          required
+          class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
+          v-model="lastName"
+          type="text"
+          placeholder="Last Name"
+          required
+          class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <input
           v-model="username"
           type="text"
           placeholder="Username"
@@ -54,6 +68,8 @@ definePageMeta({
 });
 
 const config = useRuntimeConfig()
+const firstName = ref('') // เพิ่ม firstName
+const lastName = ref('')  // เพิ่ม lastName
 const username = ref('')
 const email = ref('')
 const password = ref('')
@@ -64,6 +80,8 @@ async function register() {
     const response = await useFetch(`${config.public.baseURL}/api/users/register`, {
       method: 'POST',
       body: {
+        firstName: firstName.value, // ส่งค่า firstName
+        lastName: lastName.value,   // ส่งค่า lastName
         username: username.value,
         email: email.value,
         password: password.value,

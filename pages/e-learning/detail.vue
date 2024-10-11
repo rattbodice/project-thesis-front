@@ -7,137 +7,153 @@
     :dataTopic="dataTopicCourse"
   />
   <ModalEditTopicCourse
-  :show="showModalEditTopic"
-  :courseId="course"
-  :dataTopic="dataTopicToEdit"
-  @submitted="fetchTopicCourse"
-  @close="showModalEditTopic = false"
+    :show="showModalEditTopic"
+    :courseId="course"
+    :dataTopic="dataTopicToEdit"
+    @submitted="fetchTopicCourse"
+    @close="showModalEditTopic = false"
   />
   <ModalDeleteCourse ref="modalDeleteCourse" />
   <Navbar class="w-full z-50" />
 
-  <div class="flex min-h-screen bg-gray-100">
+  <div class="flex h-screen bg-gray-100">
     <!-- Left-side Navigation Menu -->
+    <!-- Left-side Navigation Menu -->
+<div
+  v-if="menuOpen"
+  class="fixed lg:relative top-0 left-0 h-full z-50 lg:z-auto w-64 p-4 bg-gray-200 shadow-lg overflow-y-auto transition-transform"
+>
+  <!-- ปุ่มปิดสำหรับ mobile -->
+  <button
+    class="lg:hidden bg-red-500 text-white p-2 rounded-lg mb-4"
+    @click="toggleMenu"
+  >
+    ปิดเมนู
+  </button>
+
+  <!-- รายการเมนู -->
+  <h2
+    class="text-center font-semibold text-xl text-blue-700"
+    v-if="dataCourse"
+  >
+    {{ dataCourse.title }}
+  </h2>
+  <ul class="mt-6">
     <div
-      :class="[
-        'fixed lg:relative top-0 left-0 h-full  z-50  lg:z-auto transition-transform duration-300 lg:translate-x-0 lg:w-64',
-        menuOpen ? 'translate-x-0' : '-translate-x-[100%]',
-      ]"
-      class="w-64 p-4 h-full"
+      v-for="data in dataTopicCourse"
+      class="bg-white rounded-lg shadow-md mb-2"
     >
-      <!-- Close button for mobile -->
-      <button
-        class="lg:hidden bg-orange-500 text-white p-2 rounded-lg"
-        @click="toggleMenu"
+      <div
+        class="text-lg font-semibold bg-blue-200 text-blue-600 py-3 px-4 cursor-pointer rounded-md"
+        @click="data.open = !data.open"
       >
-        Close Menu
-      </button>
+        {{ data.title }}
+        <span v-if="data.open">▲</span><span v-else>▼</span>
+      </div>
+      <div v-if="data.open" class="py-2 px-4">
+        <button
+          v-for="subtopic in data.subTopics"
+          @click="openMainContent(subtopic)"
+          class="w-full text-left bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md mb-2"
+        >
+          {{ subtopic.title }}
+        </button>
 
-      <!-- Menu Items -->
-      <h2 class="text-center" v-if="dataCourse">{{ dataCourse.title }}</h2>
-      <!-- Menu Items -->
-      <h2
-        class="text-center text-2xl font-bold text-gray-800 mb-4"
-        v-if="dataCourse"
-      >
-        {{ dataCourse.title }}
-      </h2>
-      <ul class="mt-6">
-        <div v-for="data in dataTopicCourse" class="collapse bg-base-200">
-          <input type="checkbox" />
-          <div
-            class="collapse-title text-xl font-semibold text-blue-600 py-2 px-4 border-b border-gray-300"
-          >
-            {{ data.title }}
-          </div>
-          <div class="collapse-content py-4">
-            <button
-              @click="openMainContent(subtopic)"
-              class="btn btn-block flex justify-between bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 mb-2"
-              v-for="subtopic in data.subTopics"
-            >
-              <p>{{ subtopic.title }}</p>
-            </button>
+        <button
+          @click="openSubtopicForm(data.id)"
+          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+        >
+          เพิ่มหัวข้อย่อย
+        </button>
 
-            <div
-              class="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300"
-              @click="openSubtopicForm(data.id)"
-            >
-              <p class="mr-2">เพิ่มหัวข้อย่อย</p>
-              <UIcon name="cil:plus" class="w-5 h-5" />
-            </div>
-            <div
-              class="flex items-center justify-center mt-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300"
-              @click="openModalEditTopic(data)"
-            >
-              <p class="mr-2">แก้ไขหัวข้อหลัก</p>
-              <UIcon name="cil:color-border" class="w-5 h-5" />
-            </div>
-            <div
-              class="flex items-center justify-center mt-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg cursor-pointer transition-all duration-300"
-              
-            >
-              <p class="mr-2">แก้ไขเพิ่มเติม</p>
-              <UIcon name="cil:color-border" class="w-5 h-5" />
-            </div>
-          </div>
-        </div>
-        <hr class="text-black mt-2 mb-2" />
-        <li class="flex flex-col space-y-2">
-          <button
-            @click="showModalAddTopic = true"
-            class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-          >
-            + เพิ่มหัวข้อหลัก
-          </button>
-          <button
-            @click="openDeleteModal()"
-            class="btn bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 mt-2 border border-blue-500 hover:border-transparent rounded"
-          >
-            <UIcon name="cil:trash" class="" />
-            ลบคอร์ส
-          </button>
-        </li>
-        <hr class="text-black mt-2 mb-2" />
-        <li class="flex flex-col space-y-2">
-          <button
-            class="bg-transparent hover:bg-yellow-500 text-yellow-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-          >
-            แก้ไขเพิ่มเติม
-          </button>
-        </li>
-      </ul>
+        <button
+          @click="openModalEditTopic(data)"
+          class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+        >
+          แก้ไขหัวข้อหลัก
+        </button>
+
+        <button
+          @click="openEditMore(data)"
+          class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md"
+        >
+          จัดเรียงเพิ่มเติม
+        </button>
+      </div>
     </div>
 
-    <!-- Toggle Button (Partially Visible) -->
-    <button
-      class="fixed left-0 transform translate-y-1/2 bg-orange-500 text-white py-2 px-4 rounded-r-lg lg:hidden"
-      @click="toggleMenu"
-      :class="menuOpen ? 'hidden' : ''"
-    >
-      <UIcon name="i-cil:arrow-circle-right" class="" />
-    </button>
+    <!-- เพิ่มหัวข้อหลัก -->
+    <li class="flex flex-col space-y-2 mt-4">
+      <button
+        @click="showModalAddTopic = true"
+        class="w-full bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      >
+        + เพิ่มหัวข้อหลัก
+      </button>
+
+      <button
+        @click="openEditTopic"
+        class="w-full bg-transparent hover:bg-yellow-500 text-yellow-700 font-semibold hover:text-white py-2 px-4 border border-yellow-500 hover:border-transparent rounded"
+      >
+        จัดเรียงหัวข้อหลัก
+      </button>
+
+      <button
+        @click="openDeleteModal()"
+        class="w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+      >
+        <UIcon name="cil:trash" class="mr-2" />
+        ลบคอร์ส
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- ปุ่มเปิดเมนูที่แอบอยู่ทางซ้ายมือ -->
+<button
+  v-if="!menuOpen" 
+  class="lg:hidden fixed top-4 left-0  transform bg-blue-500 text-white p-3 z-50 rounded-r-lg shadow-lg"
+  @click="toggleMenu"
+>
+  เปิดเมนู
+</button>
+
+
+    
 
     <!-- Main Content Area -->
-    <div class="flex-grow">
-      <MainContent v-if="showMainContent" :subtopic="dataShowMainContent" @fetchTopic="fetchTopicCourse" @setDefault = "setMainDefault" @toEdit = "openEditMainContent"/>
+    <div class="flex-grow overflow-y-auto">
+      <MainContent
+        v-if="showMainContent"
+        :subtopic="dataShowMainContent"
+        @fetchTopic="fetchTopicCourse"
+        @setDefault="setMainDefault"
+        @toEdit="openEditMainContent"
+      />
       <MainAddSubtopic
         :topicId="TopicIdToAddSub"
         v-if="showMainAddSubTopic"
         @submitted="fetchTopicCourse"
         @subtopicLatest="openMainContentLatest"
-        
       />
-      <MainEditSubtopic 
-      :existingData="dataShowMainContent"
-      v-if="showEditMainContent"
-       @submitted="handleEditMain(dataShowMainContent.topicId, dataShowMainContent.id)"
-      @toEdit = "openEditMainContent"
-      @cancelEdit="cancelEditMainContent"
+      <MainEditSubtopic
+        :existingData="dataShowMainContent"
+        v-if="showEditMainContent"
+        @submitted="
+          handleEditMain(dataShowMainContent.topicId, dataShowMainContent.id)
+        "
+        @toEdit="openEditMainContent"
+        @cancelEdit="cancelEditMainContent"
       />
       <editCourse
-      v-if="showEditCourse"
-      :initialSubTopics = "subTopicEdit"
+        v-if="showEditCourse"
+        :initialSubTopics="subTopicEdit || []"
+        @submitted="fetchTopicCourse"
+      />
+      <editBigCourse
+        v-if="showEditBigCourse"
+        :initialTopics="dataTopicCourse"
+        @submitted="fetchTopicCourse"
       />
     </div>
   </div>
@@ -146,7 +162,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import ModalAddTopicCourse from "@/components/e_learning/ModalAddTopicCourse.vue";
-import ModalEditTopicCourse from "@/components/e_learning/MainEditTopic.vue"
+import ModalEditTopicCourse from "@/components/e_learning/MainEditTopic.vue";
 import ModalDeleteCourse from "~/components/e_learning/ModalDeleteCourse.vue";
 import { getAllTopicInCourse } from "@/services/courseTopicService";
 import { deleteCourseById, getCourseById } from "@/services/courseService";
@@ -154,8 +170,9 @@ import MainContent from "~/components/e_learning/MainContent.vue";
 import MainAddSubtopic from "~/components/e_learning/MainAddSubtopic.vue";
 import MainEditSubtopic from "~/components/e_learning/MainEditSubtopic.vue";
 import editCourse from "~/components/e_learning/admin/editCourse.vue";
+import editBigCourse from "~/components/e_learning/admin/editBigCourse.vue";
 
-const menuOpen = ref(false); // Controls the menu visibility
+const menuOpen = ref(true); // Controls the menu visibility
 const video = ref(null); // Reference to the video element
 const showPopup = ref(false); // Popup state
 const popupSecond = ref(null); // Holds the time the popup should appear
@@ -165,7 +182,7 @@ const course = route.query.course;
 
 const showModalAddTopic = ref(false);
 const showModalEditTopic = ref(false);
-const dataTopicToEdit = ref(null)
+const dataTopicToEdit = ref(null);
 
 // --------------------------------------- main
 const showMainAddSubTopic = ref(false);
@@ -174,8 +191,10 @@ const showMainContent = ref(false);
 const dataShowMainContent = ref([]);
 const showEditMainContent = ref(false);
 
-const showEditCourse = ref(false)
-const subTopicEdit = ref(false)
+const showEditCourse = ref(false);
+const subTopicEdit = ref(false);
+
+const showEditBigCourse = ref(false);
 
 // Data for topic
 const dataCourse = ref(null);
@@ -193,17 +212,29 @@ function openMainContent(subtopic) {
   showMainContent.value = true;
 }
 
-function openModalEditTopic(topic){
-  dataTopicToEdit.value = topic
-  showModalEditTopic.value = true
+function openModalEditTopic(topic) {
+  dataTopicToEdit.value = topic;
+  showModalEditTopic.value = true;
 }
 
-function openEditMainContent(){
+function openEditMore(data) {
   setMainDefault();
-  showEditMainContent.value = true
+  subTopicEdit.value = data;
+  showEditCourse.value = true;
 }
 
-function cancelEditMainContent(){
+function openEditTopic() {
+  setMainDefault();
+  console.log(dataTopicCourse.value);
+  showEditBigCourse.value = true;
+}
+
+function openEditMainContent() {
+  setMainDefault();
+  showEditMainContent.value = true;
+}
+
+function cancelEditMainContent() {
   setMainDefault();
   showMainContent.value = true;
 }
@@ -212,8 +243,6 @@ function handleEditMain(topicId, subtopicId) {
   // ส่งทั้ง topicId และ subtopicId เพื่อ Fetch ข้อมูลใหม่
   openMainContentLatest(topicId, subtopicId);
 }
-
-
 
 async function openMainContentLatest(topicId, subtopicId) {
   await fetchTopicCourse(); // รอให้ข้อมูลของ topicCourse ถูกดึงมา
@@ -248,7 +277,7 @@ const modalDeleteCourse = ref(null);
 
 const openDeleteModal = () => {
   if (modalDeleteCourse.value) {
-    modalDeleteCourse.value.showModal(); // Show the delete modal
+    modalDeleteCourse.value.showModal(course); // Show the delete modal
   }
 };
 // --------------------------------------
@@ -270,7 +299,8 @@ function checkTime() {
 // Fetch the list of topics in the course
 async function fetchTopicCourse() {
   try {
-    const { success, data, error } = await getAllTopicInCourse(course);
+    const userId = localStorage.getItem("userId");
+    const { success, data, error } = await getAllTopicInCourse(course, userId);
 
     if (success && Array.isArray(data)) {
       dataTopicCourse.value = data; // Assign the topics array directly
@@ -303,7 +333,9 @@ async function fetchCourses() {
 async function setMainDefault() {
   showMainAddSubTopic.value = false;
   showMainContent.value = false;
-  showEditMainContent.value = false
+  showEditMainContent.value = false;
+  showEditCourse.value = false;
+  showEditBigCourse.value = false;
 }
 
 // Listen for when the modal closes and refetch data
@@ -341,7 +373,6 @@ onMounted(async () => {
     transform: translateX(0); /* Visible on large screens */
   }
 }
-
 
 /* Ensure full height of menu on all screens */
 

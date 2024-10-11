@@ -56,6 +56,7 @@ const onSubmitAnswer = async () => {
 
   if (response.success) {
     emit('answerSubmitted', selectedAnswer.value); // แจ้งให้รู้ว่าคำตอบส่งแล้ว
+    emit('fetchQuestions')
     emit('close'); // ปิดป๊อปอัพ
   } else {
     console.error('Error submitting answer:', response.error);

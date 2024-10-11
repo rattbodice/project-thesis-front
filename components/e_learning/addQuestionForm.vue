@@ -157,6 +157,7 @@ const submitQuestions = async () => {
     const response = await clearQuestions(props.subTopicId); // Call clearQuestions if empty
     if (response.success) {
       alert('All questions cleared successfully!'); // Success message
+      
     } else {
       alert(`Failed to clear questions: ${response.error}`); // Error message
       console.error('Error:', response.error);
@@ -197,6 +198,22 @@ const submitQuestions = async () => {
     console.error('Error:', response.error);
   }
 };
+
+watch(() => props.subTopicId, async (newVal) => {
+  const response = await getQuestionsBySubTopic(props.subTopicId);
+  
+  if (response.success) {
+    // หากดึงคำถามสำเร็จ
+    questions.value = response.data.map(question => ({
+      ...question,
+      minutes: Math.floor(question.time_in_video / 60),
+      seconds: question.time_in_video % 60,
+    }));
+  } else {
+    console.error('Error fetching questions:', response.error);
+    questions.value = []
+  }
+});
 
 // ดึงคำถามเมื่อโหลด component
 onMounted(async () => {

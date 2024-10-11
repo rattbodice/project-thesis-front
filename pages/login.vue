@@ -38,8 +38,9 @@
     </div>
   </div>
 </template>
+
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRuntimeConfig } from '#app';
 import jwt_decode from 'jwt-decode'; // Import jwt-decode
@@ -54,6 +55,7 @@ const error = ref('');
 const router = useRouter();
 const config = useRuntimeConfig();
 
+// เช็ค token เมื่อ component ถูก mount แล้ว redirect ไปยังหน้าอื่นถ้ามี token อยู่แล้ว
 onMounted(() => {
   if (process.client) {
     const token = localStorage.getItem('token');
@@ -65,6 +67,7 @@ onMounted(() => {
 
 async function login() {
   try {
+    // เรียก API สำหรับ login
     const response = await $fetch(`${config.public.baseURL}/api/users/login`, {
       method: 'POST',
       body: {
@@ -73,21 +76,19 @@ async function login() {
       },
     });
 
-    // Save JWT token in localStorage
+    // เก็บ JWT token ลงใน localStorage
     localStorage.setItem('token', response.token);
 
-    // Decode JWT token to get userId
+    // Decode JWT token เพื่อดึง userId มาใช้
     const decodedToken = jwt_decode(response.token);
     const userId = decodedToken.userId;
     localStorage.setItem('userId', userId);
 
-    console.log(userId);
-    // Navigate user to dashboard or home
+    // พา user ไปยังหน้า dashboard หรือหน้าแรก
     router.push('/');
   } catch (err) {
+    // แสดงข้อความผิดพลาดถ้าล็อกอินไม่สำเร็จ
     error.value = 'Login failed. Please try again.';
   }
 }
 </script>
-
-

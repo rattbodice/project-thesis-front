@@ -22,16 +22,9 @@
         <!-- เมนูที่แสดงบนหน้าจอขนาดใหญ่ -->
         <div class="hidden sm:flex flex-none">
           <ul class="menu menu-horizontal px-1">
+            <li><NuxtLink to="" class="text-white bg-yellow-400 hover:bg-yellow-500">หน้าจัดการผู้ใช้</NuxtLink></li>
             <li><NuxtLink to="/" class="text-white">หน้าหลัก</NuxtLink></li>
-            <li>
-              <details>
-                <summary class="text-white">Parent</summary>
-                <ul class="bg-sky-400 rounded-t-none p-2">
-                  <li><NuxtLink to="/about" class="text-white">Link 1asdasd</NuxtLink></li>
-                  <li><a>Link2asdasdasasd</a></li>
-                </ul>
-              </details>
-            </li>
+            
             <li>
               <button
                 @click="logout()"
@@ -48,6 +41,7 @@
       <!-- เมนูที่แสดงบนหน้าจอขนาดเล็ก -->
       <div v-if="isOpen" class="sm:hidden">
         <ul class="menu menu-vertical bg-orange-100 p-4 space-y-2">
+          <li><button class="btn btn-warning">หน้าจัดการ</button></li>
           <li><NuxtLink to="/">หน้าหลัก</NuxtLink></li>
           <li>
             <details>

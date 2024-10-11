@@ -5,19 +5,20 @@
 
     <div class="relative w-full h-[75vh] bg-black rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
       <video
-        ref="videoElement"
-        v-if="subtopic.video"
-        class="w-full h-full object-cover"
-        controls
-        @loadedmetadata="onVideoLoaded"
-        @timeupdate="onVideoTimeUpdate"
-        @play="onVideoPlay"
-        @pause="onVideoPauseOrEnd"
-        @ended="onVideoPauseOrEnd"
-        @seeking="onVideoSeeking"
-        @seeked="onVideoSeeked"
-        :key="subtopic.video.file_path"
-      >
+  ref="videoElement"
+  v-if="subtopic.video"
+  class="w-full h-full object-cover"
+  controls
+  @loadedmetadata="onVideoLoaded"
+  @timeupdate="onVideoTimeUpdate"
+  @play="onVideoPlay"
+  @pause="onVideoPauseOrEnd"
+  @ended="onVideoPauseOrEnd"
+  @seeking="onVideoSeeking"
+  @seeked="onVideoSeeked"
+  :key="subtopic.video.file_path"
+>
+
         <source :src="`${config.public.baseURL}/${subtopic.video.file_path}`" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
@@ -37,6 +38,7 @@
       :subTopicId="subtopic.id" 
       @close="showQuestionPopup = false" 
       @answerSubmitted="handleAnswerSubmission"
+      @fetchQuestions="fetchQuestions"
     />
   </div>
 </template>
@@ -58,6 +60,8 @@ const props = defineProps({
   },
 });
 
+
+
 const emit = defineEmits(['setDefault','toEdit']); // กำหนด emit
 
 const videoLength = ref(0);
@@ -69,6 +73,21 @@ const hasWatched = ref(false);
 const showQuestionPopup = ref(false); // สถานะการแสดงป๊อปอัพ
 const currentQuestionIndex = ref(null);  // เก็บคำถามที่แสดงในปัจจุบัน
 const questions = ref([]);  // เก็บคำถามทั้งหมดของ subtopic
+
+watch(() => props.subtopic, async (newValue) => {
+  if (newValue.video) {
+    // ตั้งค่า videoElement ใหม่
+    lastWatchedTime.value = 0; // รีเซ็ตเวลาที่เคยดู
+    hasWatched.value = false; // รีเซ็ตสถานะการดู
+    fetchVideoProgress()
+    // รอให้ DOM อัปเดตก่อน
+    await nextTick();
+
+    // ตั้งค่า src ของ videoElement
+    videoElement.value.src = `${config.public.baseURL}/${newValue.video.file_path}`;
+    videoElement.value.load(); // โหลดวิดีโอใหม่
+  }
+}, { immediate: true });
 
 const onVideoLoaded = (event) => {
   videoLength.value = event.target.duration; 
@@ -158,9 +177,9 @@ const onVideoTimeUpdate = () => {
   const currentTime = video.currentTime;
 
   // ถ้าผู้ใช้เรียนจบแล้ว ไม่ต้องตรวจสอบคำถาม
-  if (hasWatched.value) {
-    return;
-  }
+  // if (hasWatched.value) {
+  //   return;
+  // }
 
   checkForNewQuestions(currentTime);
 
