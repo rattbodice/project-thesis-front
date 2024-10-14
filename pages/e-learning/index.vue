@@ -36,7 +36,7 @@
                 ดูรายละเอียด
               </button>
             </NuxtLink>
-            <NuxtLink :to="`/admin/processcourse?course=${course.id}`">
+            <NuxtLink v-if="isAdmin" :to="`/admin/processcourse?course=${course.id}`">
               <button
                 class="w-full bg-yellow-500 mt-2 text-white font-semibold py-2 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
