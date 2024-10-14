@@ -45,7 +45,7 @@
                 </button>
                 <button
                   class="btn btn-error"
-                  @click="openDeleteUserModal(user.id)"
+                  @click="openDeleteUserModal(user)"
                 >
                   ลบ
                 </button>
@@ -178,10 +178,11 @@
         class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
       >
         <div class="bg-white rounded-lg p-6 w-96">
-          <h3 class="text-lg font-semibold">ยืนยันการลบผู้ใช้งาน</h3>
-          <p>คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งานนี้?</p>
+          <h3 class="text-lg font-semibold">ยืนยันการลบผู้ใช้งาน </h3>
+          <p>คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้งานนี้ ?</p>
+          <p>{{ userToDelete.firstName }} {{ userToDelete.lastName }}</p>
           <div class="flex justify-between mt-4">
-            <button class="btn btn-danger" @click="deleteUser(userToDelete)">
+            <button class="btn btn-danger" @click="deleteUser(userToDelete.id)">
               ยืนยัน
             </button>
             <button
@@ -222,8 +223,8 @@ const searchQuery = ref("");
 const currentPage = ref(1);
 const itemsPerPage = 10;
 
-const openDeleteUserModal = (userId) => {
-  userToDelete.value = userId;
+const openDeleteUserModal = (user) => {
+  userToDelete.value = user;
   isDeleteModalOpen.value = true;
 };
 

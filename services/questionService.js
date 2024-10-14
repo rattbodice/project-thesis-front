@@ -101,4 +101,34 @@ export const createQuestion = async (formData) => {
       return { success: false, error: error.message }; // Return error on catch
     }
   };
+
+
+  export const fetchQuestionsWithAnswerByUser = async (subTopicId, userId) => {
+    try {
+      const config = useRuntimeConfig(); // Retrieve runtimeConfig settings
+      
+      
+      // Make fetch request to create questions
+      const response = await fetch(
+        `${config.public.baseURL}/api/question/getQuestionsWithAnswerByUser/${subTopicId}/user/${userId}`,
+        {
+          method: "GET",
+          
+        }
+      );
   
+      // Check the result
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Questions get successfully:", data);
+        return { success: true, data }; // Return data on success
+      } else {
+        const errorData = await response.json();
+        console.error("Error creating questions:", errorData);
+        return { success: false, error: errorData }; // Return error on failure
+      }
+    } catch (error) {
+      console.error("An error occurred:", error.message);
+      return { success: false, error: error.message }; // Return error on catch
+    }
+  };

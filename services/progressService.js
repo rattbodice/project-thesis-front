@@ -108,3 +108,14 @@ export const checkProgressTopic = async (userId, subtopicId) => {
     throw error; // ยกข้อผิดพลาดเพื่อให้สามารถจัดการต่อไป
   }
 };
+
+
+export const fetchUserProgressByCourseId = async (courseId) => {
+  const config = useRuntimeConfig(); 
+  const response = await fetch(`${config.public.baseURL}/api/progressVideo/get-progress-bycourseId/${courseId}`); // ปรับ URL ให้ตรงกับ API ของคุณ
+  if (!response.ok) {
+    throw new Error('Failed to fetch user progress');
+  }
+  const result = await response.json();
+    return result; // ส่งข้อมูลที่ได้รับกลับ
+};
