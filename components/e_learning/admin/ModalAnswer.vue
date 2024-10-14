@@ -6,11 +6,8 @@
         ✖ Close
       </button>
 
-      <div v-if="answers.length === 0" class="mt-4">
-        <p class="text-center text-gray-500">No answers available.</p>
-      </div>
       
-      <ul v-else class="mt-4">
+      <ul v-if="answers" class="mt-4">
         <li
           v-for="(question, index) in answers.data"
           :key="question.id"
@@ -38,6 +35,9 @@
           <p v-else class="text-gray-500">No answers recorded for this question.</p>
         </li>
       </ul>
+      <div v-else class="mt-4">
+        <p class="text-center text-gray-500">No answers available.</p>
+      </div>
     </div>
   </div>
 </template>
