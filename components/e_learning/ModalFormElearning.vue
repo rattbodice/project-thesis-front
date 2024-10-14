@@ -1,11 +1,11 @@
 <template>
   <div v-if="isVisible" class="fixed z-10 inset-0 overflow-y-auto bg-black bg-opacity-50">
     <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-        <h3 class="text-xl font-semibold mb-4">เพิ่มคอร์สใหม่</h3>
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 overflow-y-auto">
+        <h3 class="text-xl font-semibold mb-4">เพิ่มบทเรียนใหม่</h3>
         <form @submit.prevent="submitForm">
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">ชื่อคอร์ส</label>
+            <label class="block text-gray-700 mb-2">ชื่อบทเรียน</label>
             <input
               type="text"
               v-model="courseName"
@@ -14,7 +14,7 @@
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 mb-2">รายละเอียดคอร์ส</label>
+            <label class="block text-gray-700 mb-2">รายละเอียดบทเรียน</label>
             <textarea
               v-model="courseDescription"
               class="w-full px-3 py-2 border rounded-lg"
@@ -119,7 +119,7 @@ const submitForm = async () => {
     props.fetchCourses();
     closeModal();
   } else {
-    console.error("เกิดข้อผิดพลาดในการสร้างคอร์ส:", result.error);
+    console.error("เกิดข้อผิดพลาดในการสร้างบทเรียน:", result.error);
   }
 };
 </script>

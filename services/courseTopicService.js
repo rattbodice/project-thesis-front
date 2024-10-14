@@ -75,11 +75,11 @@ export const getAllTopicInCourse = async (courseId,userId) => {
 
     if (response.ok){
       const data = await response.json();
-      console.log("หัวข้อของคอร์สถูกสร้าง:", data);
+      console.log("หัวข้อของบทเรียนถูกสร้าง:", data);
       return { success: true, data };
     } else{
       const errorData = await response.json();
-      console.error("เกิดข้อผิดพลาดในการเรียกหัวข้อของคอร์ส:", errorData);
+      console.error("เกิดข้อผิดพลาดในการเรียกหัวข้อของบทเรียน:", errorData);
       return { success: false, error: errorData };
     }
     // Return fetched data
@@ -125,22 +125,23 @@ export const deleteTopicCourse = async (topicId) => {
     console.log("Deleting topic with ID:", topicId);
 
     // ทำการ request แบบ DELETE เพื่อทำการลบหัวข้อ
-    const { data, error } = await useFetch(
+    const response = await fetch(
       `${config.public.baseURL}/api/course/delete-topic-course/${topicId}`,
       {
         method: "DELETE",
       }
     );
 
-    if (error.value) {
-      console.error("Error deleting topic course:", error.value);
-      return { success: false, error: error.value };
+    if (response.ok) {
+      const data = await response.json(); // แปลงข้อมูลเป็น JSON
+      return { success: true, message: data.message }; // ส่งข้อมูลกลับเมื่อสำเร็จ
+    } else {
+      const errorData = await response.json(); // แปลงข้อผิดพลาดเป็น JSON
+      return { success: false, error: errorData }; // ส่งข้อผิดพลาดกลับเมื่อไม่สำเร็จ
     }
 
-    return { success: true, data: data.value };
-  } catch (err) {
-    console.error("An error occurred:", err);
-    return { success: false, error: err };
+  } catch (error) {
+    return { success: false, error: error.message }; // ส่งข้อผิดพลาดกลับ
   }
 };
 

@@ -28,12 +28,7 @@
           เข้าสู่ระบบ
         </button>
       </form>
-      <NuxtLink
-        to="/register"
-        class="mt-4 block w-full text-center bg-orange-500 text-white font-semibold py-2 rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
-      >
-        สมัครสมาชิก
-      </NuxtLink>
+    
       <p v-if="error" class="mt-4 text-center text-red-500">{{ error }}</p>
     </div>
   </div>
@@ -67,7 +62,6 @@ onMounted(() => {
 
 async function login() {
   try {
-    // เรียก API สำหรับ login
     const response = await $fetch(`${config.public.baseURL}/api/users/login`, {
       method: 'POST',
       body: {
@@ -79,16 +73,18 @@ async function login() {
     // เก็บ JWT token ลงใน localStorage
     localStorage.setItem('token', response.token);
 
-    // Decode JWT token เพื่อดึง userId มาใช้
+    // Decode JWT token เพื่อดึง userId และ role มาใช้
     const decodedToken = jwt_decode(response.token);
     const userId = decodedToken.userId;
+    const userRole = decodedToken.role; // ดึง role จาก token
     localStorage.setItem('userId', userId);
+    localStorage.setItem('role', userRole); // เก็บ role ใน localStorage
 
     // พา user ไปยังหน้า dashboard หรือหน้าแรก
     router.push('/');
   } catch (err) {
-    // แสดงข้อความผิดพลาดถ้าล็อกอินไม่สำเร็จ
     error.value = 'Login failed. Please try again.';
   }
 }
+
 </script>

@@ -1,7 +1,7 @@
 export const updateProgressVideoUser = async (data) => {
   try {
     const config = useRuntimeConfig();
-
+    console.log(data)
     // ตรวจสอบข้อมูลที่จำเป็น
     if (
       !data.user_id ||

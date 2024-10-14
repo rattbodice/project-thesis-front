@@ -24,9 +24,9 @@
       </video>
     </div>
 
-    <EDComponent :subtopic="subtopic" @toEdit="handleEdit" @deleted="handleDeleteSubtopic"/>
+    <EDComponent v-if="isAdmin" :subtopic="subtopic" @toEdit="handleEdit" @deleted="handleDeleteSubtopic"/>
 
-    <addQuestionForm class="mt-6" @fetchQuestions="fetchQuestions" :subTopicId="subtopic.id" :videoLength="videoLength" />
+    <addQuestionForm v-if="isAdmin" class="mt-6" @fetchQuestions="fetchQuestions" :subTopicId="subtopic.id" :videoLength="videoLength" />
     
     <!-- ป๊อปอัพแสดงคำถาม -->
     <questionPopup 
@@ -59,9 +59,7 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
-
-
+const isAdmin = ref(false)
 const emit = defineEmits(['setDefault','toEdit']); // กำหนด emit
 
 const videoLength = ref(0);
@@ -79,6 +77,7 @@ watch(() => props.subtopic, async (newValue) => {
     // ตั้งค่า videoElement ใหม่
     lastWatchedTime.value = 0; // รีเซ็ตเวลาที่เคยดู
     hasWatched.value = false; // รีเซ็ตสถานะการดู
+    
     fetchVideoProgress()
     // รอให้ DOM อัปเดตก่อน
     await nextTick();
@@ -89,9 +88,10 @@ watch(() => props.subtopic, async (newValue) => {
   }
 }, { immediate: true });
 
-const onVideoLoaded = (event) => {
+const onVideoLoaded = async (event) => {
   videoLength.value = event.target.duration; 
   videoElement.value.currentTime = lastWatchedTime.value; 
+  await fetchVideoProgress()
 };
 
 const fetchQuestions = async () => {
@@ -159,6 +159,20 @@ const handleAnswerSubmission = async (answer) => {
 
 const fetchVideoProgress = async () => {
   try {
+    // ตรวจสอบว่าเป็น Admin หรือไม่
+    if (isAdmin.value) {
+      // ตั้งค่าว่าแอดมินได้ดูวิดีโอแล้วทันที
+      lastWatchedTime.value = videoLength.value;
+      await updateProgressVideoUser({
+        user_id: userId,
+        subtopic_id: props.subtopic.id,
+        last_watched_time: videoLength.value,
+        is_finished: true, // ตั้งค่าว่าแอดมินดูจบแล้ว
+      });
+      hasWatched.value = true;
+      
+    }
+    // ถ้าไม่ใช่แอดมิน ดึงค่าประวัติวิดีโอปกติ
     const progressData = await getProgressVideoUser(userId, props.subtopic.id);
     if (progressData.success) {
       lastWatchedTime.value = progressData.data.last_watched_time;
@@ -171,7 +185,6 @@ const fetchVideoProgress = async () => {
     console.error('Error fetching video progress:', error);
   }
 };
-
 const onVideoTimeUpdate = () => {
   const video = videoElement.value;
   const currentTime = video.currentTime;
@@ -254,12 +267,19 @@ const handleEditSubTopic = () => {
   
 }
 
-onMounted(() => {
+onMounted(async () => {
+  const userRole = localStorage.getItem("role");
+  
+  if (userRole === "admin") {
+    isAdmin.value = true;
+  }
+
   if (userId) {
-    fetchVideoProgress(); 
-    fetchQuestions();
+    // await fetchVideoProgress(); 
+    await fetchQuestions();
   }
 });
+
 </script>
 
 <style scoped>

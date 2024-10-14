@@ -13,113 +13,149 @@
     @submitted="fetchTopicCourse"
     @close="showModalEditTopic = false"
   />
-  <ModalDeleteCourse ref="modalDeleteCourse" />
+  <ModalDeleteTopic
+  :show="showModalDeleteTopic"
+  :dataTopic="dataTopicToDelete"
+  @submitted="fetchTopicCourse"
+  @close="showModalDeleteTopic = false"
+
+  />
+  
+
+  <EditCourseModal
+  :show="showEditLargeCourse"
+  :courseData="dataCourse"
+  @submitted="fetchCourses"
+  @close="showEditLargeCourse = false"
+      />
+      <ModalDeleteCourse ref="modalDeleteCourse" />
+  
   <Navbar class="w-full z-50" />
 
   <div class="flex h-screen bg-gray-100">
     <!-- Left-side Navigation Menu -->
     <!-- Left-side Navigation Menu -->
-<div
-  v-if="menuOpen"
-  class="fixed lg:relative top-0 left-0 h-full z-50 lg:z-auto w-64 p-4 bg-gray-200 shadow-lg overflow-y-auto transition-transform"
->
-  <!-- ปุ่มปิดสำหรับ mobile -->
-  <button
-    class="lg:hidden bg-red-500 text-white p-2 rounded-lg mb-4"
-    @click="toggleMenu"
-  >
-    ปิดเมนู
-  </button>
-
-  <!-- รายการเมนู -->
-  <h2
-    class="text-center font-semibold text-xl text-blue-700"
-    v-if="dataCourse"
-  >
-    {{ dataCourse.title }}
-  </h2>
-  <ul class="mt-6">
     <div
-      v-for="data in dataTopicCourse"
-      class="bg-white rounded-lg shadow-md mb-2"
+      v-if="menuOpen"
+      class="fixed lg:relative top-0 left-0 h-full z-50 lg:z-auto w-64 p-4 bg-gray-200 shadow-lg overflow-y-auto transition-transform"
     >
-      <div
-        class="text-lg font-semibold bg-blue-200 text-blue-600 py-3 px-4 cursor-pointer rounded-md"
-        @click="data.open = !data.open"
+      <!-- ปุ่มปิดสำหรับ mobile -->
+      <button
+        class="lg:hidden bg-red-500 text-white p-2 rounded-lg mb-4"
+        @click="toggleMenu"
       >
-        {{ data.title }}
-        <span v-if="data.open">▲</span><span v-else>▼</span>
-      </div>
-      <div v-if="data.open" class="py-2 px-4">
-        <button
-          v-for="subtopic in data.subTopics"
-          @click="openMainContent(subtopic)"
-          class="w-full text-left bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md mb-2"
-        >
-          {{ subtopic.title }}
-        </button>
+        ปิดเมนู
+      </button>
 
-        <button
-          @click="openSubtopicForm(data.id)"
-          class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+      <!-- รายการเมนู -->
+      <h2
+        class="text-center font-semibold text-xl text-blue-700"
+        v-if="dataCourse"
+      >
+        {{ dataCourse.title }}
+      </h2>
+      <ul class="mt-6">
+        <div
+          v-for="data in dataTopicCourse"
+          class="bg-white rounded-lg shadow-md mb-2"
         >
-          เพิ่มหัวข้อย่อย
-        </button>
+          <div
+            class="text-lg font-semibold bg-blue-200 text-blue-600 py-3 px-4 cursor-pointer rounded-md"
+            @click="data.open = !data.open"
+          >
+            {{ data.title }}
+            <span v-if="data.open">▲</span><span v-else>▼</span>
+          </div>
+          <div v-if="data.open" class="py-2 px-4">
+            <button
+            
+              v-for="subtopic in data.subTopics"
+              @click="openMainContent(subtopic)"
+              class="w-full text-left bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md mb-2"
+            >
+              {{ subtopic.title }}
+            </button>
 
-        <button
-          @click="openModalEditTopic(data)"
-          class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
-        >
-          แก้ไขหัวข้อหลัก
-        </button>
+            <button
+            v-if="isAdmin"
+              @click="openSubtopicForm(data.id)"
+              class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+            >
+              เพิ่มหัวข้อย่อย
+            </button>
 
-        <button
-          @click="openEditMore(data)"
-          class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md"
-        >
-          จัดเรียงเพิ่มเติม
-        </button>
-      </div>
+            <button
+            v-if="isAdmin"
+              @click="openModalEditTopic(data)"
+              class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+            >
+              แก้ไขหัวข้อหลัก
+            </button>
+
+            <button
+            v-if="isAdmin"
+              @click="openEditMore(data)"
+              class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+            >
+              จัดเรียงเพิ่มเติม
+            </button>
+
+            <button
+            v-if="isAdmin"
+              @click="openModalDeleteTopic(data)"
+              class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md mb-2"
+            >
+              ลบหัวข้อหลัก
+            </button>
+          </div>
+        </div>
+
+        <!-- เพิ่มหัวข้อหลัก -->
+        <li class="flex flex-col space-y-2 mt-4">
+          <button
+          v-if="isAdmin"
+            @click="showModalAddTopic = true"
+            class="w-full bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+          >
+            + เพิ่มหัวข้อหลัก
+          </button>
+
+          <button
+          v-if="isAdmin"
+            @click="openEditTopic"
+            class="w-full bg-transparent hover:bg-yellow-500 text-yellow-700 font-semibold hover:text-white py-2 px-4 border border-yellow-500 hover:border-transparent rounded"
+          >
+            จัดเรียงหัวข้อหลัก
+          </button>
+
+          <button
+          v-if="isAdmin"
+            @click="openEditCourse"
+            class="w-full bg-transparent hover:bg-yellow-500 text-yellow-700 font-semibold hover:text-white py-2 px-4 border border-yellow-500 hover:border-transparent rounded"
+          >
+            แก้ไขบทเรียน
+          </button>
+
+          <button
+          v-if="isAdmin"
+            @click="openDeleteModal()"
+            class="w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+          >
+            <UIcon name="cil:trash" class="mr-2" />
+            ลบบทเรียน
+          </button>
+        </li>
+      </ul>
     </div>
 
-    <!-- เพิ่มหัวข้อหลัก -->
-    <li class="flex flex-col space-y-2 mt-4">
-      <button
-        @click="showModalAddTopic = true"
-        class="w-full bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      >
-        + เพิ่มหัวข้อหลัก
-      </button>
-
-      <button
-        @click="openEditTopic"
-        class="w-full bg-transparent hover:bg-yellow-500 text-yellow-700 font-semibold hover:text-white py-2 px-4 border border-yellow-500 hover:border-transparent rounded"
-      >
-        จัดเรียงหัวข้อหลัก
-      </button>
-
-      <button
-        @click="openDeleteModal()"
-        class="w-full bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-      >
-        <UIcon name="cil:trash" class="mr-2" />
-        ลบคอร์ส
-      </button>
-    </li>
-  </ul>
-</div>
-
-<!-- ปุ่มเปิดเมนูที่แอบอยู่ทางซ้ายมือ -->
-<button
-  v-if="!menuOpen" 
-  class="lg:hidden fixed top-4 left-0  transform bg-blue-500 text-white p-3 z-50 rounded-r-lg shadow-lg"
-  @click="toggleMenu"
->
-  เปิดเมนู
-</button>
-
-
-    
+    <!-- ปุ่มเปิดเมนูที่แอบอยู่ทางซ้ายมือ -->
+    <button
+      v-if="!menuOpen"
+      class="lg:hidden fixed top-4 left-0 transform bg-blue-500 text-white p-3 z-50 rounded-r-lg shadow-lg"
+      @click="toggleMenu"
+    >
+      เปิดเมนู
+    </button>
 
     <!-- Main Content Area -->
     <div class="flex-grow overflow-y-auto">
@@ -132,13 +168,13 @@
       />
       <MainAddSubtopic
         :topicId="TopicIdToAddSub"
-        v-if="showMainAddSubTopic"
+        v-if="showMainAddSubTopic && isAdmin"
         @submitted="fetchTopicCourse"
         @subtopicLatest="openMainContentLatest"
       />
       <MainEditSubtopic
         :existingData="dataShowMainContent"
-        v-if="showEditMainContent"
+        v-if="showEditMainContent && isAdmin"
         @submitted="
           handleEditMain(dataShowMainContent.topicId, dataShowMainContent.id)
         "
@@ -146,15 +182,17 @@
         @cancelEdit="cancelEditMainContent"
       />
       <editCourse
-        v-if="showEditCourse"
+        v-if="showEditCourse && isAdmin"
         :initialSubTopics="subTopicEdit || []"
         @submitted="fetchTopicCourse"
       />
       <editBigCourse
-        v-if="showEditBigCourse"
+        v-if="showEditBigCourse && isAdmin"
         :initialTopics="dataTopicCourse"
         @submitted="fetchTopicCourse"
       />
+
+      
     </div>
   </div>
 </template>
@@ -164,6 +202,7 @@ import { ref, onMounted } from "vue";
 import ModalAddTopicCourse from "@/components/e_learning/ModalAddTopicCourse.vue";
 import ModalEditTopicCourse from "@/components/e_learning/MainEditTopic.vue";
 import ModalDeleteCourse from "~/components/e_learning/ModalDeleteCourse.vue";
+import ModalDeleteTopic from "~/components/e_learning/ModalDeleteTopic.vue";
 import { getAllTopicInCourse } from "@/services/courseTopicService";
 import { deleteCourseById, getCourseById } from "@/services/courseService";
 import MainContent from "~/components/e_learning/MainContent.vue";
@@ -171,18 +210,24 @@ import MainAddSubtopic from "~/components/e_learning/MainAddSubtopic.vue";
 import MainEditSubtopic from "~/components/e_learning/MainEditSubtopic.vue";
 import editCourse from "~/components/e_learning/admin/editCourse.vue";
 import editBigCourse from "~/components/e_learning/admin/editBigCourse.vue";
+import EditCourseModal from "~/components/e_learning/EditCourseModal.vue";
+
 
 const menuOpen = ref(true); // Controls the menu visibility
 const video = ref(null); // Reference to the video element
 const showPopup = ref(false); // Popup state
 const popupSecond = ref(null); // Holds the time the popup should appear
 
+const isAdmin = ref(false);
+console.log(isAdmin.value)
 const route = useRoute();
 const course = route.query.course;
 
 const showModalAddTopic = ref(false);
 const showModalEditTopic = ref(false);
+const showModalDeleteTopic = ref(false);
 const dataTopicToEdit = ref(null);
+const dataTopicToDelete = ref(null);
 
 // --------------------------------------- main
 const showMainAddSubTopic = ref(false);
@@ -196,9 +241,17 @@ const subTopicEdit = ref(false);
 
 const showEditBigCourse = ref(false);
 
+const showEditLargeCourse = ref(false);
+
 // Data for topic
 const dataCourse = ref(null);
 const dataTopicCourse = ref([]);
+
+function openEditCourse() {
+  setMainDefault();
+  console.log(dataTopicCourse.value);
+  showEditLargeCourse.value = true;
+}
 
 function openSubtopicForm(topicId) {
   setMainDefault();
@@ -215,6 +268,12 @@ function openMainContent(subtopic) {
 function openModalEditTopic(topic) {
   dataTopicToEdit.value = topic;
   showModalEditTopic.value = true;
+}
+
+function openModalDeleteTopic(topic){
+  console.log('work')
+  dataTopicToDelete.value = topic;
+  showModalDeleteTopic.value =true;
 }
 
 function openEditMore(data) {
@@ -348,6 +407,12 @@ onMounted(async () => {
   if (course) {
     await fetchTopicCourse();
     await fetchCourses();
+
+    const userRole = localStorage.getItem("role");
+
+    if (userRole === "admin") {
+      isAdmin.value = true;
+    }
   } else {
     console.error("Course ID is missing in the route");
   }

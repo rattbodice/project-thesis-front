@@ -4,12 +4,11 @@
     <div class="p-6">
       <div class="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-x-4 sm:space-y-0 text-white">
       <!-- Card 1 -->
-      <NuxtLink to="/e-learning">
+      <NuxtLink to="/admin/usermanage">
         <div
         class="max-w-sm rounded overflow-hidden shadow-lg bg-blue-500 p-6 hover:bg-gray-400 cursor-pointer"
       >
-        <div class="text-xl font-semibold mb-2">eLearning</div>
-        <p class=" text-base">สื่อการสอน ที่จะทำให้ผู้เรียนเข้าใจถึงวิธีการมากขึ้น</p>
+        <div class="text-xl font-semibold mb-2">จัดการผู้เข้าใช้งาน</div>
       </div>
       </NuxtLink>
 
@@ -17,8 +16,7 @@
       <!-- <div
         class="max-w-sm rounded overflow-hidden shadow-lg bg-lime-500 p-6 hover:bg-gray-400 cursor-pointer"
       >
-        <div class="text-xl font-semibold mb-2">Document</div>
-        <p class=" text-base">นี่คือคำอธิบายของช้อยส์ที่ 2</p>
+        <div class="text-xl font-semibold mb-2">จัดการรายละเอียดบทเรียน</div>
       </div> -->
     </div>
     </div>

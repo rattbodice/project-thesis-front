@@ -18,11 +18,44 @@ export const createCourse = async (courseName, courseDescription,userId, imageFi
       // ตรวจสอบสถานะของ response
       if (response.ok) {
         const data = await response.json();
-        console.log("คอร์สถูกสร้างสำเร็จ:", data);
+        console.log("บทเรียนถูกสร้างสำเร็จ:", data);
         return { success: true, data };
       } else {
         const errorData = await response.json();
-        console.error("เกิดข้อผิดพลาดในการสร้างคอร์ส:", errorData);
+        console.error("เกิดข้อผิดพลาดในการสร้างบทเรียน:", errorData);
+        return { success: false, error: errorData };
+      }
+    } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์:", error);
+      return { success: false, error };
+    }
+  };
+
+  export const editCourse = async (courseId, courseName, courseDescription, imageFile, level, baseURL) => {
+    try {
+      // สร้าง formData เพื่อส่งข้อมูลแบบ multipart/form-data
+      const formData = new FormData();
+      formData.append("title", courseName);
+      formData.append("description", courseDescription);
+      formData.append("level", parseInt(level));
+  
+      if (imageFile) {
+        formData.append("image", imageFile); // หากมีการอัปโหลดรูปใหม่ จะเพิ่มรูปภาพใหม่
+      }
+  
+      const response = await fetch(`${baseURL}/api/course/edit-course/${courseId}`, {
+        method: "PUT", // ใช้ method PUT สำหรับการแก้ไขข้อมูล
+        body: formData,
+      });
+  
+      // ตรวจสอบสถานะของ response
+      if (response.ok) {
+        const data = await response.json();
+        console.log("คอร์สถูกแก้ไขสำเร็จ:", data);
+        return { success: true, data };
+      } else {
+        const errorData = await response.json();
+        console.error("เกิดข้อผิดพลาดในการแก้ไขคอร์ส:", errorData);
         return { success: false, error: errorData };
       }
     } catch (error) {
@@ -64,11 +97,11 @@ export const createCourse = async (courseName, courseDescription,userId, imageFi
   
       if (response.ok) {
         const data = await response.json();
-        console.log("ดึงข้อมูลคอร์สสำเร็จ:", data);
+        console.log("ดึงข้อมูลบทเรียนสำเร็จ:", data);
         return { success: true, data };
       } else {
         const errorData = await response.json();
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลคอร์ส:", errorData);
+        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลบทเรียน:", errorData);
         return { success: false, error: errorData };
       }
     } catch (error) {

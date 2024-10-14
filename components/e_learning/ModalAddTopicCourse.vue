@@ -112,7 +112,7 @@ const submitForm = async () => {
     emit("submitted"); 
     closeModal();
   } else {
-    console.error("เกิดข้อผิดพลาดในการสร้างคอร์ส:", result.error);
+    console.error("เกิดข้อผิดพลาดในการสร้างบทเรียน:", result.error);
     toast.error('ไม่สามารถเพิ่มหัวข้อหลักได้ !');
   }
 };

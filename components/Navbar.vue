@@ -22,7 +22,7 @@
         <!-- เมนูที่แสดงบนหน้าจอขนาดใหญ่ -->
         <div class="hidden sm:flex flex-none">
           <ul class="menu menu-horizontal px-1">
-            <li><NuxtLink to="" class="text-white bg-yellow-400 hover:bg-yellow-500">หน้าจัดการผู้ใช้</NuxtLink></li>
+            <li v-if="isAdmin"><NuxtLink to="/admin/dashboard" class="text-white bg-yellow-400 hover:bg-yellow-500">หน้าจัดการ</NuxtLink></li>
             <li><NuxtLink to="/" class="text-white">หน้าหลัก</NuxtLink></li>
             
             <li>
@@ -43,15 +43,7 @@
         <ul class="menu menu-vertical bg-orange-100 p-4 space-y-2">
           <li><button class="btn btn-warning">หน้าจัดการ</button></li>
           <li><NuxtLink to="/">หน้าหลัก</NuxtLink></li>
-          <li>
-            <details>
-              <summary>Parent</summary>
-              <ul class="bg-base-100 rounded-t-none p-2">
-                <li><NuxtLink to="/about">Link 1</NuxtLink></li>
-                <li><a>Link 2</a></li>
-              </ul>
-            </details>
-          </li>
+          
           <li>
             <button
               @click="logout()"
@@ -73,6 +65,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from "vue-router";
+const isAdmin = ref(false)
 const router = useRouter();
 const isOpen = ref(false);
 
@@ -80,6 +73,17 @@ function logout() {
   localStorage.removeItem("token");
   router.push("/login");
 }
+
+onMounted(async () => {
+
+
+    const userRole = localStorage.getItem("role");
+
+    if (userRole === "admin") {
+      isAdmin.value = true;
+    }
+  
+});
 </script>
 
 <style scoped>

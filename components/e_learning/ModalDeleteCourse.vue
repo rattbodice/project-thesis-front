@@ -2,8 +2,8 @@
   <dialog ref="modal" class="modal">
     <div class="modal-box">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" @click="closeModal">✕</button>
-      <h3 class="text-lg font-bold">ยืนยันที่จะลบคอร์ส</h3>
-      <p class="py-4">คุณยืนยันที่จะลบคอร์สนี้หรือไม่?</p>
+      <h3 class="text-lg font-bold">ยืนยันที่จะลบบทเรียน</h3>
+      <p class="py-4">คุณยืนยันที่จะลบบทเรียนนี้หรือไม่?</p>
       <div class="modal-action">
         <button class="btn btn-error" @click="confirmDelete">ยืนยัน</button>
         <button class="btn" @click="closeModal">ยกเลิก</button>

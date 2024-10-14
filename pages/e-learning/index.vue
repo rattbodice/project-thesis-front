@@ -1,15 +1,15 @@
 <template lang="">
   <div>
     <!-- Modal for E-learning form -->
+    
+    <!-- Sticky Navbar -->
+    <Navbar class=" w-full z-50" />
     <ModalFormElearning
       :show="showModal"
       @close="showModal = false"
       :fetchCourses="fetchCourses"
     />
-
-    <!-- Sticky Navbar -->
-    <Navbar class="sticky top-0 left-0 w-full z-50" />
-
+    
     <!-- Main content below the Navbar -->
     <div class="pt-6 p-6">
       <div class="flex flex-wrap justify-center gap-6">
@@ -39,11 +39,12 @@
           </div>
         </div>
         <div
+        v-if="isAdmin"
         @click="showModal = true"
           class="max-w-sm bg-white w-64 shadow-lg rounded-lg overflow-hidden
           cursor-pointer" >
           <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
-            <!-- ไอคอนหรือเครื่องหมายบวกสำหรับการเพิ่มคอร์ส -->
+            <!-- ไอคอนหรือเครื่องหมายบวกสำหรับการเพิ่มบทเรียน -->
             <svg
               class="w-16 h-16 text-gray-400"
               fill="none"
@@ -61,9 +62,9 @@
           </div>
           <div class="p-6 text-center" >
             <h2 class="text-2xl font-bold text-gray-800 mb-2">
-              เพิ่มคอร์สใหม่
+              เพิ่มบทเรียนใหม่
             </h2>
-            <p class="text-gray-600 mb-4">คลิกที่นี่เพื่อเพิ่มคอร์สใหม่</p>
+            <p class="text-gray-600 mb-4">คลิกที่นี่เพื่อเพิ่มบทเรียนใหม่</p>
           </div>
         </div>
 
@@ -83,19 +84,26 @@ const URLAPI = config.public.baseURL
 const showModal = ref(false);
 const dataAllCourses = ref([])
 
+const isAdmin = ref(false)
+
 definePageMeta({
   middleware: "auth",
 });
 
-onMounted(() => {
-  fetchCourses()
+onMounted(async () => {
+  await fetchCourses()
+  const userRole = localStorage.getItem("role");
+
+    if (userRole === "admin") {
+      isAdmin.value = true;
+    }
 })
 
 async function fetchCourses() {
   const result = await fetchAllCourses(URLAPI);
 
   if (result.success) {
-    dataAllCourses.value = result.data; // เก็บข้อมูลคอร์สที่ได้
+    dataAllCourses.value = result.data; // เก็บข้อมูลบทเรียนที่ได้
   } else {
     console.error(result.error); // แสดงข้อผิดพลาด
   }
