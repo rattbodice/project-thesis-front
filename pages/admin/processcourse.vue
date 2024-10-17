@@ -51,20 +51,21 @@
             <div class="collapse-content">
                 <div
                 v-if="subTopic.userVideoProgress.length > 0"
+                v-for="userProcess in subTopic.userVideoProgress"
                 class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4"
               >
                 <p class="flex-1">
-                  Name: {{ subTopic.userVideoProgress[0].user.firstName }}
-                  {{ subTopic.userVideoProgress[0].user.lastName }}
+                  Name: {{ userProcess.user.firstName }}
+                  {{ userProcess.user.lastName }}
                 </p>
                 <p class="flex-1">
                   Progress:
-                  {{ subTopic.userVideoProgress[0].last_watched_time }} seconds
+                  {{ userProcess.last_watched_time }} seconds
                 </p>
                 <p class="flex-1">
                   Status:
                   {{
-                    subTopic.userVideoProgress[0].is_finished
+                    userProcess.is_finished
                       ? "Completed"
                       : "In Progress"
                   }}

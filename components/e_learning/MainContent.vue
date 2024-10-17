@@ -197,7 +197,7 @@ const onVideoTimeUpdate = () => {
   checkForNewQuestions(currentTime);
 
   if (currentTime > lastWatchedTime.value) {
-    if (currentTime - lastWatchedTime.value <= 3) {
+    if (currentTime - lastWatchedTime.value <= 1) {
       lastWatchedTime.value = currentTime;
       updateVideoProgress();
     } else {
