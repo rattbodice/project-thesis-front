@@ -37,6 +37,39 @@ export const updateProgressVideoUser = async (data) => {
   }
 };
 
+export const sendProgressWithBeacon = (data) => {
+  try {
+    const config = useRuntimeConfig();
+
+    // ตรวจสอบข้อมูลก่อนส่ง
+    if (
+      !data.user_id ||
+      !data.subtopic_id ||
+      data.last_watched_time < 0 ||
+      typeof data.is_finished !== "boolean"
+    ) {
+      console.warn("❌ ข้อมูลไม่ครบ ไม่สามารถส่ง beacon ได้", data);
+      return;
+    }
+
+    const url = `${config.public.baseURL}/api/progressVideo/user-video-progress`;
+    const blob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+
+    const success = navigator.sendBeacon(url, blob);
+
+    if (!success) {
+      console.warn("❌ sendBeacon ล้มเหลว");
+    } else {
+      console.log("✅ sendBeacon สำเร็จ", data);
+    }
+  } catch (error) {
+    console.error("❌ Error sending beacon:", error);
+  }
+};
+
+
 export const getProgressVideoUser = async (userId, subtopicId) => {
   try {
     const config = useRuntimeConfig();
